@@ -5,7 +5,8 @@ from datetime import datetime
 from tempfile import mkdtemp
 from typing import Optional
 
-from . import Abort, debug, info, warn
+from .. import logger
+from . import Abort
 
 
 class Git:
@@ -38,7 +39,7 @@ class Git:
         if m:
             self.__default_branch = m[1].strip()
         else:
-            warn("Looking up default branch name failed, assuming master")
+            logger.warning("Looking up default branch name failed, assuming master")
             self.__default_branch = "master"
         return self.__default_branch
 
@@ -51,14 +52,14 @@ class Git:
             args.extend(["-C", repo or self._dir])
         args.extend(argv)
         cmd = " ".join(args)
-        debug(f"Running '{cmd}'")
+        logger.debug(f"Running '{cmd}'")
         proc = subprocess.run(args, text=True, capture_output=True)
         out = proc.stdout.strip()
         if proc.returncode:
             if out:
-                info(out)
+                logger.info(out)
             if proc.stderr:
-                info(proc.stderr.strip())
+                logger.info(proc.stderr.strip())
             raise Abort(f"Git command '{cmd}' failed")
         return out
 
